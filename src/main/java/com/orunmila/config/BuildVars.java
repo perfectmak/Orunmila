@@ -4,7 +4,7 @@ package com.orunmila.config;
  * @author Pelumi<pelumi@maven.ai>
  *         Created on 28/04/16 at 06:39.
  */
-public class BuildVarsTemplate {
+public class BuildVars {
 
     public static final Boolean debug = true;
     public static final String pathToLogs = "./";

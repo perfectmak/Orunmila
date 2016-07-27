@@ -1,0 +1,5 @@
+{
+  "botKey" : "bot key here",
+  "botName" : "Name of bot here",
+  "apiBaseUrl" : "http://localhost:8080"
+}

@@ -1,6 +1,7 @@
 package com.orunmila.provider.telegram;
 
 import com.orunmila.config.BotConfig;
+import com.orunmila.services.MessageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.TelegramApiException;
@@ -15,8 +16,11 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
  */
 public class OrunmilaTelegramHandler extends TelegramLongPollingBot {
     private static final Logger logger = LoggerFactory.getLogger(OrunmilaTelegramHandler.class);
+    private final MessageService messageService;
 
-    public OrunmilaTelegramHandler() {
+
+    public OrunmilaTelegramHandler(MessageService messageService) {
+        this.messageService = messageService;
         logger.info("Initializing Orunmila Telegram handler...");
     }
 
@@ -25,27 +29,28 @@ public class OrunmilaTelegramHandler extends TelegramLongPollingBot {
         logger.info("Update received, type is [{}]", update.getUpdateId());
         logger.info("The update received is: [{}]", update.getMessage());
         logger.info("Update.hasMessage returns: [{}]", update.hasMessage());
-        //check if the update has a message
         if (update.hasMessage()) {
             Message message = update.getMessage();
-            logger.info("message.hasText returns: [{}]", message.hasText());
-
-            //TODO abstract detecting the different types of messages into an enum
-            //check if the message has text. it could also  contain for example a location ( message.hasLocation() )
             if (message.hasText()) {
                 logger.info("Text message received from user: [{}] with content [{}]", message.getFrom().getFirstName(), message.getText());
-                //create a object that contains the information to send back the message
-                SendMessage sendMessageRequest = new SendMessage();
-                sendMessageRequest.setChatId(message.getChatId().toString()); //who should get the message? the sender from which we got the message...
-                sendMessageRequest.setText("You said: " + message.getText());
-                sendMessageRequest.setText("I say go fuck yourself");
+                SendMessage sendMessageRequest = getResponseSendMessage(message);
                 try {
-                    sendMessage(sendMessageRequest); //at the end, so some magic and send the message ;)
+                    sendMessage(sendMessageRequest);
                 } catch (TelegramApiException e) {
                     logger.error("There was an exception sending a message through telegram's API.");
                 }
             }
         }
+    }
+
+    private SendMessage getResponseSendMessage(Message message) {
+        String userId = message.getChatId().toString();
+        String messageText = message.getText();
+        String responseText = messageService.sendMessage(userId, messageText);
+        SendMessage sendMessageRequest = new SendMessage();
+        sendMessageRequest.setChatId(userId);
+        sendMessageRequest.setText(responseText);
+        return sendMessageRequest;
     }
 
     public String getBotUsername() {

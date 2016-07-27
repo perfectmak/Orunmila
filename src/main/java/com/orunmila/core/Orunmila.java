@@ -1,6 +1,7 @@
 package com.orunmila.core;
 
 import com.orunmila.provider.telegram.OrunmilaTelegramHandler;
+import com.orunmila.services.MessageServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.TelegramApiException;
@@ -18,7 +19,7 @@ public class Orunmila {
 
         TelegramBotsApi telegramBotsApi = new TelegramBotsApi();
         try {
-            telegramBotsApi.registerBot(new OrunmilaTelegramHandler());
+            telegramBotsApi.registerBot(new OrunmilaTelegramHandler(new MessageServiceImpl()));
         } catch (TelegramApiException e) {
             logger.error("Exception registering Orunmila Telegram handler: ", e);
         }
